@@ -32,6 +32,41 @@ interface CSharpHostMethods {
 	//     return userSettings.Language ?? "en"; // Default to English if not set
 	// }
 
+	// Theme operations
+	GetTheme?: () => Promise<string>; // Returns theme string ("light" or "dark")
+	SetTheme?: (theme: string) => Promise<string>; // Sets theme, returns success/error JSON
+	//
+	// IMPLEMENTATION NOTE for C# Server Developer:
+	// GetTheme should return "light" or "dark" based on user preferences
+	// SetTheme should save the theme preference and return success status
+	//
+	// Example C# implementation:
+	// public async Task<string> GetTheme()
+	// {
+	//     return userSettings.Theme ?? "dark"; // Default to dark if not set
+	// }
+	//
+	// public async Task<string> SetTheme(string theme)
+	// {
+	//     userSettings.Theme = theme;
+	//     await SaveSettings();
+	//     return JsonSerializer.Serialize(new { success = true, message = "Theme updated" });
+	// }
+
+	// Language setting operations
+	SetLanguage?: (language: string) => Promise<string>; // Sets language, returns success/error JSON
+	//
+	// IMPLEMENTATION NOTE for C# Server Developer:
+	// SetLanguage should save the language preference for future sessions
+	//
+	// Example C# implementation:
+	// public async Task<string> SetLanguage(string language)
+	// {
+	//     userSettings.Language = language;
+	//     await SaveSettings();
+	//     return JsonSerializer.Serialize(new { success = true, message = "Language updated" });
+	// }
+
 	// Scan operations
 	StartQuickScan?: () => Promise<string>; // Returns JSON string with success/error
 	StartFullScan?: () => Promise<string>; // Returns JSON string with success/error
@@ -131,6 +166,36 @@ export class CSharpHostService {
 		return this.callCSharpMethod(
 			'GetLanguage',
 			async () => 'en' // Default fallback to English
+		);
+	}
+
+	// Get theme from C# host
+	static async getTheme(): Promise<string> {
+		return this.callCSharpMethod(
+			'GetTheme',
+			async () => 'dark' // Default fallback to dark theme
+		);
+	}
+
+	// Set theme in C# host
+	static async setTheme(
+		theme: string
+	): Promise<{ success: boolean; message: string }> {
+		return this.callCSharpMethod(
+			'SetTheme',
+			async () => ({ success: true, message: `Theme set to ${theme}` }), // Fallback for testing
+			theme
+		);
+	}
+
+	// Set language in C# host
+	static async setLanguage(
+		language: string
+	): Promise<{ success: boolean; message: string }> {
+		return this.callCSharpMethod(
+			'SetLanguage',
+			async () => ({ success: true, message: `Language set to ${language}` }), // Fallback for testing
+			language
 		);
 	}
 

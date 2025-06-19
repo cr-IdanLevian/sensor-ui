@@ -154,7 +154,7 @@ export const MainComponent = (): JSX.Element => {
 
 	return (
 		<div
-			className='flex flex-col w-[404px] items-center gap-6 p-6 relative rounded-3xl border shadow-xl'
+			className='flex flex-col w-[404px] items-center gap-6 p-6 relative border shadow-xl'
 			style={{
 				background:
 					'var(--color-tokens-design-tokens-backgrounds-appbackground)',

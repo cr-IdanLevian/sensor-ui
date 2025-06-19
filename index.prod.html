@@ -30,6 +30,16 @@
       -webkit-tap-highlight-color: transparent;
     }
     
+    /* Disable context menu on all elements */
+    * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-context-menu: none;
+    }
+    
     /* Hide scrollbars */
     body::-webkit-scrollbar {
       display: none;
@@ -56,6 +66,186 @@
       color: #ffffff;
     }
   </style>
+
+  <script>
+    // Disable right-click context menu
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+Shift+C
+    document.addEventListener('keydown', function(e) {
+      // F12
+      if (e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Ctrl+Shift+I (DevTools) - Windows/Linux
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Cmd+Shift+I (DevTools) - Mac
+      if (e.metaKey && e.shiftKey && e.keyCode === 73) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Ctrl+Shift+J (Console) - Windows/Linux
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Cmd+Shift+J (Console) - Mac
+      if (e.metaKey && e.shiftKey && e.keyCode === 74) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Ctrl+U (View Source) - Windows/Linux
+      if (e.ctrlKey && e.keyCode === 85) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Cmd+U (View Source) - Mac
+      if (e.metaKey && e.keyCode === 85) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Ctrl+Shift+C (Select Element) - Windows/Linux
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Cmd+Shift+C (Select Element) - Mac
+      if (e.metaKey && e.shiftKey && e.keyCode === 67) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Ctrl+S (Save) - Windows/Linux
+      if (e.ctrlKey && e.keyCode === 83) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Cmd+S (Save) - Mac
+      if (e.metaKey && e.keyCode === 83) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Ctrl+A (Select All) - Windows/Linux
+      if (e.ctrlKey && e.keyCode === 65) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Cmd+A (Select All) - Mac
+      if (e.metaKey && e.keyCode === 65) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Ctrl+P (Print) - Windows/Linux
+      if (e.ctrlKey && e.keyCode === 80) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Cmd+P (Print) - Mac
+      if (e.metaKey && e.keyCode === 80) {
+        e.preventDefault();
+        return false;
+      }
+
+      // Additional Mac shortcuts
+      // Cmd+Option+I (DevTools) - Mac alternative
+      if (e.metaKey && e.altKey && e.keyCode === 73) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Cmd+Option+J (Console) - Mac alternative
+      if (e.metaKey && e.altKey && e.keyCode === 74) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Cmd+Option+C (Element Inspector) - Mac alternative
+      if (e.metaKey && e.altKey && e.keyCode === 67) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // F5 (Refresh)
+      if (e.keyCode === 116) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Ctrl+R (Refresh) - Windows/Linux
+      if (e.ctrlKey && e.keyCode === 82) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Cmd+R (Refresh) - Mac
+      if (e.metaKey && e.keyCode === 82) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Disable drag and drop
+    document.addEventListener('dragstart', function(e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Disable text selection
+    document.addEventListener('selectstart', function(e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Disable image dragging
+    document.addEventListener('dragstart', function(e) {
+      if (e.target.tagName === 'IMG') {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Additional security: Clear console periodically (optional)
+    setInterval(function() {
+      if (typeof console !== 'undefined' && console.clear) {
+        console.clear();
+      }
+    }, 1000);
+
+    // Disable common developer shortcuts
+    window.addEventListener('keydown', function(e) {
+      // Prevent Ctrl+Shift+K (Firefox Console)
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 75) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Prevent Ctrl+Shift+E (Firefox Network)
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 69) {
+        e.preventDefault();
+        return false;
+      }
+    });
+  </script>
 </head>
 <body>
   <div id="root"></div>

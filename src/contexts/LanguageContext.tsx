@@ -194,6 +194,19 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
 		fetchLanguageFromCSharp();
 	}, []);
 
+	// Enhanced setLanguage function that also saves to C# server
+	const handleSetLanguage = async (newLanguage: Language) => {
+		setLanguage(newLanguage);
+
+		// Save to C# server
+		try {
+			await CSharpHostService.setLanguage(newLanguage);
+			console.log(`[Language] Language saved to C# server: ${newLanguage}`);
+		} catch (error) {
+			console.error('[Language] Error saving language to C# server:', error);
+		}
+	};
+
 	// Apply RTL/LTR direction to document
 	useEffect(() => {
 		document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
@@ -251,7 +264,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const value = {
 		language,
-		setLanguage,
+		setLanguage: handleSetLanguage,
 		t,
 		isRTL,
 		formatDate,

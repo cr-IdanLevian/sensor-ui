@@ -22,7 +22,7 @@ import type { ScanInfo, SystemInfo, ActionButton } from './types';
 import type { MachineStatusType } from '@/data/mockData';
 
 export const MainComponent = (): JSX.Element => {
-	const { theme } = useTheme();
+	const { theme, isLoading: isThemeLoading } = useTheme();
 	const { t, isLoading: isLanguageLoading } = useLanguage();
 	const {
 		sensorData,
@@ -65,8 +65,8 @@ export const MainComponent = (): JSX.Element => {
 		setMachineStatus(nextStatus);
 	}, [sensorData, setMachineStatus]);
 
-	// Early return if loading language or sensor data
-	if (isLanguageLoading || isLoading) {
+	// Early return if loading theme, language, or sensor data
+	if (isThemeLoading || isLanguageLoading || isLoading) {
 		return (
 			<div
 				className='flex items-center justify-center h-screen'
@@ -177,117 +177,119 @@ export const MainComponent = (): JSX.Element => {
 		sensorData.data.machineStatus === 'ARCHIVED';
 
 	return (
-		<>
-			<ThemeToggle />
-			<LanguageToggle />
-			{/* Temporary toggle button for demonstration - remove in production */}
-			<button
-				onClick={toggleMachineStatus}
-				style={{
-					position: 'absolute',
-					top: '10px',
-					left: '10px',
-					padding: '8px 12px',
-					backgroundColor: '#333',
-					color: 'white',
-					border: 'none',
-					borderRadius: '4px',
-					fontSize: '12px',
-					cursor: 'pointer',
-					zIndex: 1000,
-				}}
-			>
-				Toggle Status ({sensorData.data.machineStatus})
-			</button>
+		<div className='h-screen w-full flex items-center justify-center p-4 overflow-hidden'>
+			<div className='relative max-h-full overflow-y-auto'>
+				<ThemeToggle />
+				<LanguageToggle />
+				{/* Temporary toggle button for demonstration - remove in production */}
+				<button
+					onClick={toggleMachineStatus}
+					style={{
+						position: 'absolute',
+						top: '10px',
+						left: '10px',
+						padding: '8px 12px',
+						backgroundColor: '#333',
+						color: 'white',
+						border: 'none',
+						borderRadius: '4px',
+						fontSize: '12px',
+						cursor: 'pointer',
+						zIndex: 1000,
+					}}
+				>
+					Toggle Status ({sensorData.data.machineStatus})
+				</button>
 
-			<div
-				className='flex flex-col w-[404px] items-center gap-6 p-6 relative rounded-3xl border shadow-xl'
-				style={{
-					background:
-						'var(--color-tokens-design-tokens-backgrounds-appbackground)',
-					borderColor: 'var(--color-tokens-design-tokens-borders-appstroke)',
-					boxShadow: '0 4px 32px 0 rgba(0,0,0,0.18)',
-				}}
-			>
-				<header className='flex items-start justify-center gap-6 w-full'>
-					<img
-						className='w-[184px] h-10'
-						alt='cybereason'
-						src={theme === 'light' ? logoDark : logo}
-					/>
-				</header>
-				<StatusCard status={sensorData.data.machineStatus} />
+				<div
+					className='flex flex-col w-full max-w-[404px] min-w-[320px] items-center gap-4 p-4 relative rounded-3xl border shadow-xl'
+					style={{
+						background:
+							'var(--color-tokens-design-tokens-backgrounds-appbackground)',
+						borderColor: 'var(--color-tokens-design-tokens-borders-appstroke)',
+						boxShadow: '0 4px 32px 0 rgba(0,0,0,0.18)',
+					}}
+				>
+					<header className='flex items-start justify-center gap-6 w-full'>
+						<img
+							className='w-[184px] h-10'
+							alt='cybereason'
+							src={theme === 'light' ? logoDark : logo}
+						/>
+					</header>
+					<StatusCard status={sensorData.data.machineStatus} />
 
-				{/* Show full interface only when not in minimal view */}
-				{!isMinimalView && (
-					<>
-						<ScanInfoSection scanData={scanData} />
-						<SystemInfoSection systemData={systemData} />
+					{/* Show full interface only when not in minimal view */}
+					{!isMinimalView && (
+						<>
+							<ScanInfoSection scanData={scanData} />
+							<SystemInfoSection systemData={systemData} />
 
-						{/* Full Scan Progress Section - Show when scan is running */}
-						{isScanning && currentScan && (
-							<div
-								className='flex flex-col w-full p-6 gap-4 rounded-xl border'
-								style={{
-									background:
-										'var(--color-tokens-design-tokens-backgrounds-cardbackground)',
-									borderColor:
-										'var(--color-tokens-design-tokens-borders-cardstroke)',
-								}}
-							>
-								<div className='text-center'>
-									<h2
-										className='mb-4'
-										style={{
-											color:
-												'var(--color-tokens-design-tokens-typography-primarytext)',
-											fontFamily: 'Inter, sans-serif',
-											fontSize: '14px',
-											fontWeight: 700,
-											lineHeight: '150%',
-											letterSpacing: '0%',
-										}}
-									>
-										{t('runningFullScan')}
-									</h2>
-
-									{/* Progress Bar */}
-									<div className='w-full bg-gray-300 rounded-full h-3 mb-4 overflow-hidden'>
-										<div
-											className='h-full rounded-full transition-all duration-300 ease-out'
+							{/* Full Scan Progress Section - Show when scan is running */}
+							{isScanning && currentScan && (
+								<div
+									className='flex flex-col w-full p-6 gap-4 rounded-xl border'
+									style={{
+										background:
+											'var(--color-tokens-design-tokens-backgrounds-cardbackground)',
+										borderColor:
+											'var(--color-tokens-design-tokens-borders-cardstroke)',
+									}}
+								>
+									<div className='text-center'>
+										<h2
+											className='mb-4'
 											style={{
-												width: `${Math.floor(currentScan.progress)}%`,
-												backgroundColor: '#F7C31C',
+												color:
+													'var(--color-tokens-design-tokens-typography-primarytext)',
+												fontFamily: 'Inter, sans-serif',
+												fontSize: '14px',
+												fontWeight: 700,
+												lineHeight: '150%',
+												letterSpacing: '0%',
 											}}
-										/>
-									</div>
+										>
+											{t('runningFullScan')}
+										</h2>
 
-									{/* Progress Info */}
-									<div
-										className='text-sm'
-										style={{
-											color:
-												'var(--color-tokens-design-tokens-typography-secondarytext)',
-										}}
-									>
-										{Math.floor(currentScan.progress)}% - {t('startedAt')}{' '}
-										{getFormattedTimestamp(currentScan.startTime)}
+										{/* Progress Bar */}
+										<div className='w-full bg-gray-300 rounded-full h-3 mb-4 overflow-hidden'>
+											<div
+												className='h-full rounded-full transition-all duration-300 ease-out'
+												style={{
+													width: `${Math.floor(currentScan.progress)}%`,
+													backgroundColor: '#F7C31C',
+												}}
+											/>
+										</div>
+
+										{/* Progress Info */}
+										<div
+											className='text-sm'
+											style={{
+												color:
+													'var(--color-tokens-design-tokens-typography-secondarytext)',
+											}}
+										>
+											{Math.floor(currentScan.progress)}% - {t('startedAt')}{' '}
+											{getFormattedTimestamp(currentScan.startTime)}
+										</div>
 									</div>
 								</div>
-							</div>
-						)}
+							)}
 
-						<ActionButtons buttons={actionButtons} />
-					</>
+							<ActionButtons buttons={actionButtons} />
+						</>
+					)}
+				</div>
+
+				{/* C# Debug Panel - Show only in development */}
+				{import.meta.env.DEV && (
+					<div className='mt-6'>
+						<CSharpDebug />
+					</div>
 				)}
 			</div>
-
-			{/* C# Debug Panel - Show only in development */}
-			{import.meta.env.DEV && (
-				<div className='mt-6'>
-					<CSharpDebug />
-				</div>
-			)}
-		</>
+		</div>
 	);
 };

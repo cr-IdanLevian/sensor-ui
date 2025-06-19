@@ -2,6 +2,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 
+// Import WebView security measures
+import './lib/webview-security';
+
 // Import production component (clean version)
 import { MainComponent } from './screens/MainComponent/MainComponent.prod.tsx';
 
