@@ -1,6 +1,8 @@
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { ScanInfo } from './types';
 
 export function ScanInfoSection({ scanData }: { scanData: ScanInfo[] }) {
+	const { isRTL } = useLanguage();
 	return (
 		<div
 			className='flex flex-col gap-3 w-full rounded-lg p-4'
@@ -8,10 +10,16 @@ export function ScanInfoSection({ scanData }: { scanData: ScanInfo[] }) {
 				background:
 					'var(--color-tokens-design-tokens-backgrounds-appsectionbackground)',
 			}}
+			accessKey='scan-info-section'
 		>
 			{scanData.map((item, index) => (
-				<div key={index} className='flex items-center justify-between w-full'>
-					<div className='flex items-center gap-2'>
+				<div
+					key={index}
+					className={`flex items-center justify-between w-full ${
+						isRTL ? 'flex-row' : ''
+					}`}
+				>
+					<div className={`flex items-center gap-2 ${isRTL ? 'flex-row' : ''}`}>
 						<div
 							style={{
 								color:

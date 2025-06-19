@@ -30,6 +30,9 @@ export default defineConfig({
 
 		// Minify for production
 		minify: 'esbuild',
+
+		// Generate source maps for debugging
+		sourcemap: true,
 	},
 
 	// Ensure relative base path

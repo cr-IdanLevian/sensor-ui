@@ -4,6 +4,7 @@ import warningIcon from '@/assets/icon/warning.svg';
 import decommissionMachineIcon from '@/assets/icon/decommission-machine.svg';
 import archiveMachineIcon from '@/assets/icon/archive-machine.svg';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { MachineStatus } from './types';
 
 interface StatusCardProps {
@@ -12,6 +13,7 @@ interface StatusCardProps {
 
 export function StatusCard({ status }: StatusCardProps) {
 	const { theme } = useTheme();
+	const { t, language } = useLanguage();
 	const isAtRisk = status === 'AT RISK';
 	const isDecommissioned = status === 'DECOMMISSIONED';
 	const isArchived = status === 'ARCHIVED';
@@ -60,12 +62,25 @@ export function StatusCard({ status }: StatusCardProps) {
 		return 'var(--design-primitives-colors-green-green300)';
 	};
 
+	const getStatusText = () => {
+		switch (status) {
+			case 'SECURED':
+				return t('secured');
+			case 'AT RISK':
+				return t('atRisk');
+			case 'DECOMMISSIONED':
+				return t('decommissioned');
+			case 'ARCHIVED':
+				return t('archived');
+			default:
+				return status;
+		}
+	};
+
 	const getBannerMessage = () => {
-		if (isDecommissioned)
-			return "This sensor has been decommissioned and it's not protecting the machine.";
-		if (isArchived)
-			return "This sensor has been archived and it's not protecting the machine.";
-		return 'Please contact you support team!';
+		if (isDecommissioned) return t('sensorDecommissioned');
+		if (isArchived) return t('sensorArchived');
+		return t('contactSupport');
 	};
 
 	const getBannerColors = () => {
@@ -94,9 +109,17 @@ export function StatusCard({ status }: StatusCardProps) {
 						'var(--color-tokens-design-tokens-backgrounds-appsectionbackground)',
 				}}
 			>
-				<div className='flex items-center gap-2'>
-					{getStatusIcon()}
-					<div className='flex flex-col items-start gap-1'>
+				<div
+					className={`flex items-center gap-2`}
+					dir={language === 'he' ? 'rtl' : 'ltr'}
+				>
+					<div>{getStatusIcon()}</div>
+					<div
+						className='flex flex-col items-start gap-1'
+						style={{
+							textAlign: language === 'he' ? 'right' : 'left',
+						}}
+					>
 						<span
 							className='text-xs font-normal'
 							style={{
@@ -104,7 +127,7 @@ export function StatusCard({ status }: StatusCardProps) {
 									'var(--color-tokens-design-tokens-text-textdefaultcolor)',
 							}}
 						>
-							Machine status
+							{t('machineStatus')}
 						</span>
 						<span
 							className='text-xl font-semibold tracking-tight'
@@ -112,7 +135,7 @@ export function StatusCard({ status }: StatusCardProps) {
 								color: getStatusColor(),
 							}}
 						>
-							{status}
+							{getStatusText()}
 						</span>
 					</div>
 				</div>
@@ -121,6 +144,7 @@ export function StatusCard({ status }: StatusCardProps) {
 			{/* Alert/Warning Banner for non-SECURED statuses */}
 			{(isAtRisk || isWarningStatus) && (
 				<div
+					className='alert-banner'
 					style={{
 						display: 'flex',
 						padding:

@@ -7,197 +7,168 @@ import MachineIcon from '@/assets/icon/machine.svg';
 import ReplaceFileIcon from '@/assets/icon/replace-file.svg';
 import SensorLastPolicySyncIcon from '@/assets/icon/sensor-last-policy-sync.svg';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { StatusCard } from './StatusCard';
 import { ScanInfoSection } from './ScanInfoSection';
 import { SystemInfoSection } from './SystemInfoSection';
 import { ActionButtons } from './ActionButtons';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { LanguageToggle } from '@/components/ui/language-toggle';
 import { useTheme } from '@/contexts/ThemeContext';
-import type {
-	ScanInfo,
-	SystemInfo,
-	ActionButton,
-	ConnectionStatus,
-	ScanProgress,
-	MachineStatus,
-} from './types';
-
-const scanData: ScanInfo[] = [
-	{
-		icon: (
-			<img src={ScanIcon} className='w-5 h-5 icon-themed' alt='Scan icon' />
-		),
-		label: 'Last quick scan',
-		value: 'May 28, 2025 01:24 PM',
-	},
-	{
-		icon: (
-			<img src={ReconIcon} className='w-5 h-5 icon-themed' alt='recon icon' />
-		),
-		label: 'Last full scan',
-		value: 'Jun 2, 2025 07:51 PM',
-	},
-];
-
-// TODO: Get the data from the C# API
-const connectionStatus: ConnectionStatus = 'Connected';
-
-const systemData: SystemInfo[] = [
-	{
-		icon: (
-			<img
-				src={CommunicationIcon}
-				className='w-5 h-5 icon-themed'
-				alt='communication icon'
-			/>
-		),
-		label: 'Connection',
-		value: connectionStatus,
-		isHighlighted: false,
-		statusColor: connectionStatus === 'Connected' ? '#67D086' : '#F8CA35',
-	},
-	{
-		icon: (
-			<img
-				src={MachineIcon}
-				className='w-5 h-5 icon-themed'
-				alt='machine icon'
-			/>
-		),
-		label: 'Sensor version',
-		value: '0.0.01',
-	},
-	{
-		icon: (
-			<img
-				src={ReplaceFileIcon}
-				className='w-5 h-5 icon-themed'
-				alt='replace file icon'
-			/>
-		),
-		label: 'Last DB update',
-		value: 'Jun 9, 2025 02:21 PM',
-	},
-	{
-		icon: (
-			<img
-				src={SensorLastPolicySyncIcon}
-				className='w-5 h-5 icon-themed'
-				alt='sensor last policy sync icon'
-			/>
-		),
-		label: 'Last policy sync',
-		value: 'Jun 21, 2025 04:47 PM',
-	},
-];
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useSensorData } from '@/hooks/useSensorData';
+import { CSharpDebug } from '@/components/ui/csharp-debug';
+import type { ScanInfo, SystemInfo, ActionButton } from './types';
+import type { MachineStatusType } from '@/data/mockData';
 
 export const MainComponent = (): JSX.Element => {
 	const { theme } = useTheme();
-	const [machineStatus, setMachineStatus] = useState<MachineStatus>('AT RISK'); // Default to AT RISK to show the new design
-	const [scanProgress, setScanProgress] = useState<ScanProgress>({
-		percentage: 0,
-		startTime: '',
-		isRunning: false,
-	});
-
-	const formatTime = (date: Date): string => {
-		return date.toLocaleTimeString('en-US', {
-			hour: '2-digit',
-			minute: '2-digit',
-			hour12: false,
-		});
-	};
-
-	const startFullScan = useCallback(() => {
-		const startTime = formatTime(new Date());
-		setScanProgress({
-			percentage: 1,
-			startTime,
-			isRunning: true,
-		});
-	}, []);
-
-	const stopScan = useCallback(() => {
-		setScanProgress((prev) => ({
-			...prev,
-			isRunning: false,
-		}));
-	}, []);
-
-	const handleQuickScan = useCallback(() => {
-		// TODO: Implement quick scan functionality
-		console.log('Quick scan clicked');
-	}, []);
-
-	const handleUpdate = useCallback(() => {
-		// TODO: Implement update functionality
-		console.log('Update clicked');
-	}, []);
+	const { t } = useLanguage();
+	const {
+		sensorData,
+		currentScan,
+		isLoading,
+		isScanning,
+		error,
+		startQuickScan,
+		startFullScan,
+		stopScan,
+		updateSensor,
+		setMachineStatus,
+		getFormattedTimestamp,
+	} = useSensorData();
 
 	// Toggle machine status for demonstration (you can remove this in production)
 	const toggleMachineStatus = useCallback(() => {
-		setMachineStatus((prev) => {
-			switch (prev) {
-				case 'SECURED':
-					return 'AT RISK';
-				case 'AT RISK':
-					return 'DECOMMISSIONED';
-				case 'DECOMMISSIONED':
-					return 'ARCHIVED';
-				case 'ARCHIVED':
-					return 'SECURED';
-				default:
-					return 'SECURED';
-			}
-		});
-	}, []);
+		if (!sensorData) return;
 
-	// Simulate progress when scan is running
-	useEffect(() => {
-		if (!scanProgress.isRunning) return;
+		const currentStatus = sensorData.data.machineStatus;
+		let nextStatus: MachineStatusType;
 
-		const interval = setInterval(() => {
-			setScanProgress((prev) => {
-				if (prev.percentage >= 100) {
-					// Scan completed
-					return {
-						...prev,
-						isRunning: false,
-					};
-				}
-				// Increment progress (simulate varying speeds)
-				const increment = Math.random() * 3 + 0.5; // Random increment between 0.5-3.5%
-				return {
-					...prev,
-					percentage: Math.min(prev.percentage + increment, 100),
-				};
-			});
-		}, 1000); // Update every second
+		switch (currentStatus) {
+			case 'SECURED':
+				nextStatus = 'AT RISK';
+				break;
+			case 'AT RISK':
+				nextStatus = 'DECOMMISSIONED';
+				break;
+			case 'DECOMMISSIONED':
+				nextStatus = 'ARCHIVED';
+				break;
+			case 'ARCHIVED':
+				nextStatus = 'SECURED';
+				break;
+			default:
+				nextStatus = 'SECURED';
+		}
 
-		return () => clearInterval(interval);
-	}, [scanProgress.isRunning]);
+		setMachineStatus(nextStatus);
+	}, [sensorData, setMachineStatus]);
+
+	// Early return if loading
+	if (isLoading) {
+		return <div>Loading...</div>;
+	}
+
+	if (error) {
+		return <div>Error: {error}</div>;
+	}
+
+	if (!sensorData) {
+		return <div>No data available</div>;
+	}
+
+	const scanData: ScanInfo[] = [
+		{
+			icon: (
+				<img src={ScanIcon} className='w-5 h-5 icon-themed' alt='Scan icon' />
+			),
+			label: t('lastQuickScan'),
+			value: getFormattedTimestamp(sensorData.data.scanHistory.lastQuickScan),
+		},
+		{
+			icon: (
+				<img src={ReconIcon} className='w-5 h-5 icon-themed' alt='recon icon' />
+			),
+			label: t('lastFullScan'),
+			value: getFormattedTimestamp(sensorData.data.scanHistory.lastFullScan),
+		},
+	];
+
+	const systemData: SystemInfo[] = [
+		{
+			icon: (
+				<img
+					src={CommunicationIcon}
+					className='w-5 h-5 icon-themed'
+					alt='communication icon'
+				/>
+			),
+			label: t('connection'),
+			value:
+				sensorData.data.connectionStatus === 'CONNECTED'
+					? t('connected')
+					: t('disconnected'),
+			isHighlighted: false,
+			statusColor: sensorData.data.systemInfo.connectionStatusColor,
+		},
+		{
+			icon: (
+				<img
+					src={MachineIcon}
+					className='w-5 h-5 icon-themed'
+					alt='machine icon'
+				/>
+			),
+			label: t('sensorVersion'),
+			value: sensorData.data.sensorInfo.version,
+		},
+		{
+			icon: (
+				<img
+					src={ReplaceFileIcon}
+					className='w-5 h-5 icon-themed'
+					alt='replace file icon'
+				/>
+			),
+			label: t('lastDbUpdate'),
+			value: getFormattedTimestamp(sensorData.data.sensorInfo.lastDbUpdate),
+		},
+		{
+			icon: (
+				<img
+					src={SensorLastPolicySyncIcon}
+					className='w-5 h-5 icon-themed'
+					alt='sensor last policy sync icon'
+				/>
+			),
+			label: t('lastPolicySync'),
+			value: getFormattedTimestamp(sensorData.data.sensorInfo.lastPolicySync),
+		},
+	];
 
 	// Action buttons - change based on scan state
-	const actionButtons: ActionButton[] = scanProgress.isRunning
+	const actionButtons: ActionButton[] = isScanning
 		? [
-				{ label: 'Quick Scan', onClick: handleQuickScan, disabled: true },
-				{ label: 'Stop Scan', onClick: stopScan },
-				{ label: 'Update', onClick: handleUpdate, disabled: true },
+				{ label: t('quickScan'), onClick: startQuickScan, disabled: true },
+				{ label: t('stopScan'), onClick: stopScan },
+				{ label: t('update'), onClick: updateSensor, disabled: true },
 		  ]
 		: [
-				{ label: 'Quick Scan', onClick: handleQuickScan },
-				{ label: 'Full Scan', onClick: startFullScan },
-				{ label: 'Update', onClick: handleUpdate },
+				{ label: t('quickScan'), onClick: startQuickScan },
+				{ label: t('fullScan'), onClick: startFullScan },
+				{ label: t('update'), onClick: updateSensor },
 		  ];
 
 	// Check if we should show minimal view (only for DECOMMISSIONED and ARCHIVED)
 	const isMinimalView =
-		machineStatus === 'DECOMMISSIONED' || machineStatus === 'ARCHIVED';
+		sensorData.data.machineStatus === 'DECOMMISSIONED' ||
+		sensorData.data.machineStatus === 'ARCHIVED';
 
 	return (
 		<>
 			<ThemeToggle />
+			<LanguageToggle />
 			{/* Temporary toggle button for demonstration - remove in production */}
 			<button
 				onClick={toggleMachineStatus}
@@ -215,7 +186,7 @@ export const MainComponent = (): JSX.Element => {
 					zIndex: 1000,
 				}}
 			>
-				Toggle Status ({machineStatus})
+				Toggle Status ({sensorData.data.machineStatus})
 			</button>
 
 			<div
@@ -234,7 +205,7 @@ export const MainComponent = (): JSX.Element => {
 						src={theme === 'light' ? logoDark : logo}
 					/>
 				</header>
-				<StatusCard status={machineStatus} />
+				<StatusCard status={sensorData.data.machineStatus} />
 
 				{/* Show full interface only when not in minimal view */}
 				{!isMinimalView && (
@@ -243,7 +214,7 @@ export const MainComponent = (): JSX.Element => {
 						<SystemInfoSection systemData={systemData} />
 
 						{/* Full Scan Progress Section - Show when scan is running */}
-						{scanProgress.isRunning && (
+						{isScanning && currentScan && (
 							<div
 								className='flex flex-col w-full p-6 gap-4 rounded-xl border'
 								style={{
@@ -266,7 +237,7 @@ export const MainComponent = (): JSX.Element => {
 											letterSpacing: '0%',
 										}}
 									>
-										Running full scan
+										{t('runningFullScan')}
 									</h2>
 
 									{/* Progress Bar */}
@@ -274,7 +245,7 @@ export const MainComponent = (): JSX.Element => {
 										<div
 											className='h-full rounded-full transition-all duration-300 ease-out'
 											style={{
-												width: `${Math.floor(scanProgress.percentage)}%`,
+												width: `${Math.floor(currentScan.progress)}%`,
 												backgroundColor: '#F7C31C',
 											}}
 										/>
@@ -288,8 +259,8 @@ export const MainComponent = (): JSX.Element => {
 												'var(--color-tokens-design-tokens-typography-secondarytext)',
 										}}
 									>
-										{Math.floor(scanProgress.percentage)}% - Started at{' '}
-										{scanProgress.startTime}
+										{Math.floor(currentScan.progress)}% - {t('startedAt')}{' '}
+										{getFormattedTimestamp(currentScan.startTime)}
 									</div>
 								</div>
 							</div>
@@ -299,6 +270,13 @@ export const MainComponent = (): JSX.Element => {
 					</>
 				)}
 			</div>
+
+			{/* C# Debug Panel - Show only in development */}
+			{import.meta.env.DEV && (
+				<div className='mt-6'>
+					<CSharpDebug />
+				</div>
+			)}
 		</>
 	);
 };
