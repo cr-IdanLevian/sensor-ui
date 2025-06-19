@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import CSharpHostService from '@/services/csharpHost';
 
 export type Language = 'en' | 'ja' | 'he';
 
@@ -9,6 +10,7 @@ interface LanguageContextType {
 	isRTL: boolean;
 	formatDate: (date: Date | string) => string;
 	formatTime: (date: Date) => string;
+	isLoading: boolean;
 }
 
 const translations = {
@@ -151,9 +153,46 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
-	const [language, setLanguage] = useState<Language>('he');
+	const [language, setLanguage] = useState<Language>('en'); // Default to English
+	const [isLoading, setIsLoading] = useState(true);
 
 	const isRTL = language === 'he';
+
+	// Fetch language from C# server on mount
+	useEffect(() => {
+		const fetchLanguageFromCSharp = async () => {
+			try {
+				setIsLoading(true);
+				const langCode = await CSharpHostService.getLanguage();
+
+				// Validate that the returned language is supported
+				const supportedLanguages: Language[] = ['en', 'ja', 'he'];
+				const normalizedLang = langCode.toLowerCase() as Language;
+
+				if (supportedLanguages.includes(normalizedLang)) {
+					setLanguage(normalizedLang);
+					console.log(
+						`[Language] Language set from C# server: ${normalizedLang}`
+					);
+				} else {
+					console.warn(
+						`[Language] Unsupported language from C# server: ${langCode}, falling back to English`
+					);
+					setLanguage('en');
+				}
+			} catch (error) {
+				console.error(
+					'[Language] Error fetching language from C# server:',
+					error
+				);
+				setLanguage('en'); // Fallback to English on error
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchLanguageFromCSharp();
+	}, []);
 
 	// Apply RTL/LTR direction to document
 	useEffect(() => {
@@ -217,6 +256,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
 		isRTL,
 		formatDate,
 		formatTime,
+		isLoading,
 	};
 
 	return (

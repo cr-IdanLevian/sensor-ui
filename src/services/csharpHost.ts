@@ -12,6 +12,26 @@ interface CSharpHostMethods {
 	// Sensor data operations
 	GetSensorStatus?: () => Promise<string>; // Returns JSON string
 
+	// Language operations
+	GetLanguage?: () => Promise<string>; // Returns language code string (e.g., "en", "ja", "he")
+	//
+	// IMPLEMENTATION NOTE for C# Server Developer:
+	// This method should return a language code string that corresponds to the user's preferred language.
+	// Supported language codes:
+	// - "en" or "EN" for English
+	// - "ja" or "JA" for Japanese
+	// - "he" or "HE" for Hebrew
+	//
+	// If no language is configured or an unsupported language is returned,
+	// the UI will automatically fall back to English ("en").
+	//
+	// Example C# implementation:
+	// public async Task<string> GetLanguage()
+	// {
+	//     // Return the user's configured language from your settings/config
+	//     return userSettings.Language ?? "en"; // Default to English if not set
+	// }
+
 	// Scan operations
 	StartQuickScan?: () => Promise<string>; // Returns JSON string with success/error
 	StartFullScan?: () => Promise<string>; // Returns JSON string with success/error
@@ -103,6 +123,14 @@ export class CSharpHostService {
 	static async getSensorStatus(): Promise<SensorApiResponse> {
 		return this.callCSharpMethod('GetSensorStatus', () =>
 			MockSensorApi.getSensorStatus()
+		);
+	}
+
+	// Get language from C# host
+	static async getLanguage(): Promise<string> {
+		return this.callCSharpMethod(
+			'GetLanguage',
+			async () => 'en' // Default fallback to English
 		);
 	}
 

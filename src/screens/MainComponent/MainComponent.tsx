@@ -23,7 +23,7 @@ import type { MachineStatusType } from '@/data/mockData';
 
 export const MainComponent = (): JSX.Element => {
 	const { theme } = useTheme();
-	const { t } = useLanguage();
+	const { t, isLoading: isLanguageLoading } = useLanguage();
 	const {
 		sensorData,
 		currentScan,
@@ -65,9 +65,20 @@ export const MainComponent = (): JSX.Element => {
 		setMachineStatus(nextStatus);
 	}, [sensorData, setMachineStatus]);
 
-	// Early return if loading
-	if (isLoading) {
-		return <div>Loading...</div>;
+	// Early return if loading language or sensor data
+	if (isLanguageLoading || isLoading) {
+		return (
+			<div
+				className='flex items-center justify-center h-screen'
+				style={{
+					color: 'var(--color-tokens-design-tokens-typography-primarytext)',
+					fontFamily: 'Inter, sans-serif',
+					fontSize: '16px',
+				}}
+			>
+				Loading...
+			</div>
+		);
 	}
 
 	if (error) {
