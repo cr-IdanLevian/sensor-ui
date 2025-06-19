@@ -181,16 +181,27 @@ npm run dev
 
 ## 🏗️ Building for Production
 
-### Single File Build
-
-The application builds to a single HTML file for easy C# integration:
+### Development Build
 
 ```bash
-# Build for production
+# Build with development features (includes debug panel, demo toggles)
 npm run build
 
 # Output: dist/index.html (single file with all assets inlined)
 ```
+
+### Production Build
+
+For clean production deployment without any development features:
+
+```bash
+# Build clean production version (no debug panel, no demo toggles)
+npm run build:prod
+
+# Output: dist-prod/index.prod.html (optimized for C# integration)
+```
+
+See [PRODUCTION.md](PRODUCTION.md) for detailed production build guide.
 
 ### Build Configuration
 

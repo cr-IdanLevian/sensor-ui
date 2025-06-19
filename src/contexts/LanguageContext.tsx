@@ -44,6 +44,7 @@ const translations = {
 
 		// Progress
 		runningFullScan: 'Running full scan',
+		runningQuickScan: 'Running quick scan',
 		startedAt: 'Started at',
 
 		// Buttons
@@ -87,6 +88,7 @@ const translations = {
 
 		// Progress
 		runningFullScan: 'フルスキャン実行中',
+		runningQuickScan: 'クイックスキャン実行中',
 		startedAt: '開始時刻',
 
 		// Buttons
@@ -128,6 +130,7 @@ const translations = {
 
 		// Progress
 		runningFullScan: 'מריץ סריקה מלאה',
+		runningQuickScan: 'מריץ סריקה מהירה',
 		startedAt: 'התחיל ב',
 
 		// Buttons

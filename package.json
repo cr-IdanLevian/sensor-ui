@@ -6,8 +6,11 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b && vite build",
+		"build:prod": "tsc -b && vite build --config vite.config.prod.ts --mode production && cp dist-prod/index.prod.html dist-prod/index.html",
+		"build:prod:verbose": "./scripts/build-prod.sh",
 		"lint": "eslint .",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"preview:prod": "vite preview --outDir dist-prod"
 	},
 	"dependencies": {
 		"@radix-ui/react-separator": "^1.1.0",
